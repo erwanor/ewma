@@ -35,7 +35,7 @@ pub enum Alpha {
 }
 
 impl EMWA {
-    /// Returns a new instance of EMWA
+    /// Returns a new instance of EMWA with default values.
     pub fn new(alpha: f64, kind: Alpha) -> Self {
         EMWA {
             alpha,
@@ -103,4 +103,5 @@ mod tests {
         let result = 2 + 2;
         assert_eq!(result, 4);
     }
+
 }
