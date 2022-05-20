@@ -1,20 +1,36 @@
+//! A simple library to compute exponential moving average.
+
+// #![deny(missing_docs)]
+
+/// Error enum for EMWA. 
 #[derive(Debug)]
 pub enum EMWAError {
+    /// Mismatch between dynamic and static algorithm 
     Kind,
-    Compute,
+    /// Computer unordered data
     Time,
 }
 
+/// EMWA implements exponential moving algorithm.
+/// More detailed explanations
 pub struct EMWA {
+    /// Smoothening factor
     alpha: f64,
+    /// Current value of EMWA
     value: f64,
+    /// Number of observations 
     datapoints: u32,
+    /// Time of latest value
     time: f64,
+    /// Dynamic or Static EMWA
     kind: Alpha,
 }
 
+/// Types of EMWA
 pub enum Alpha {
+    /// Time series is evenly spaced (regular intervals)
     Static,
+    /// Time series is unevenly spaced (irregular intervals)
     Dynamic,
 }
 
