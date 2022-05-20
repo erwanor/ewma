@@ -35,6 +35,7 @@ pub enum Alpha {
 }
 
 impl EMWA {
+    /// Returns a new instance of EMWA
     pub fn new(alpha: f64, kind: Alpha) -> Self {
         EMWA {
             alpha,
@@ -45,6 +46,7 @@ impl EMWA {
         }
     }
 
+    /// Function to add evenly spaced data
     pub fn add(&mut self, data: f64) -> Result<f64, EMWAError> {
         if let Alpha::Dynamic = self.kind {
             return Err(EMWAError::Kind);
@@ -70,6 +72,7 @@ impl EMWA {
         }
     }
 
+    /// Function to add unevenly spaced data
     pub fn add_with_time(&mut self, data: f64, time: f64) -> Result<f64, EMWAError> {
         if let Alpha::Static = self.kind {
             return Err(EMWAError::Kind);
@@ -87,6 +90,7 @@ impl EMWA {
         }
     }
 
+    /// Return the current accumulated value
     pub fn value(&self) -> f64 {
         self.value
     }
