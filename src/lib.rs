@@ -21,6 +21,7 @@ pub struct EMWA {
     value: f64,
     datapoints: u32,
     time: f64,
+    kind: Alpha,
 }
 
 enum Alpha {
@@ -29,16 +30,18 @@ enum Alpha {
 }
 
 impl EMWA {
-    pub fn new(alpha: f64) -> Self {
+    pub fn new(alpha: f64, kind: Alpha) -> Self {
         EMWA {
             alpha,
             value: 0f64,
             datapoints: 0,
             time: 0f64,
+            kind,
         }
     }
 
     pub fn add(&mut self, data: f64) -> f64 {
+        if let self.kind == Alpha::Static
         self.datapoints += 1;
         if self.datapoints == 1 {
             self.value = data;
