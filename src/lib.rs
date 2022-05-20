@@ -1,20 +1,9 @@
-/*
- *
- * emwa(smoothing factor)
- *
- * emwa = EMWA(0.5)
- *
- * emwa.add(something_var)
- * emwa.add(something_var)
- * emwa.add(something_var)
- * emwa.add(something_var)
- * ...
- *
- * add( decimal )
- * value () decimal
- *
- *
- */
+#[derive(Debug)]
+pub enum EMWAError {
+    Kind,
+    Compute,
+    Time,
+}
 
 pub struct EMWA {
     alpha: f64,
@@ -24,7 +13,7 @@ pub struct EMWA {
     kind: Alpha,
 }
 
-enum Alpha {
+pub enum Alpha {
     Static,
     Dynamic,
 }
@@ -40,37 +29,47 @@ impl EMWA {
         }
     }
 
-    pub fn add(&mut self, data: f64) -> f64 {
-        if let self.kind == Alpha::Static
+    pub fn add(&mut self, data: f64) -> Result<f64, EMWAError> {
+        if let Alpha::Dynamic = self.kind {
+            return Err(EMWAError::Kind);
+        }
+
         self.datapoints += 1;
         if self.datapoints == 1 {
             self.value = data;
-            self.value
+            Ok(self.value)
         } else {
             let new_value = self.alpha * data + (1f64 - self.alpha) * self.value;
             self.value = new_value;
-            self.value
+            Ok(self.value)
         }
     }
 
-    fn compute_alpha(time: f64) -> f64 {
+    fn compute_alpha(&self, time: f64) -> Result<f64, EMWAError> {
         let diff = time - self.time;
-        (- diff / self.datapoints).exp()
+        if diff < 0f64 {
+            Err(EMWAError::Time)
+        } else {
+            Ok((-diff / self.datapoints as f64).exp())
+        }
     }
 
-    pub fn add_with_time(&mut self, data: f64, time: f64) -> f64 {
+    pub fn add_with_time(&mut self, data: f64, time: f64) -> Result<f64, EMWAError> {
+        if let Alpha::Static = self.kind {
+            return Err(EMWAError::Kind);
+        }
+
         self.datapoints += 1;
         if self.datapoints == 1 {
             self.value = data;
-            self.value
+            Ok(self.value)
         } else {
-            let new_alpha = self.compute_alpha(time);
+            let new_alpha = self.compute_alpha(time)?;
             let new_value = new_alpha * data + (1f64 - new_alpha) * self.value;
             self.value = new_value;
-            self.value
+            Ok(self.value)
         }
     }
-        
 
     pub fn value(&self) -> f64 {
         self.value
