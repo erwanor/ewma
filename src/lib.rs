@@ -1,16 +1,16 @@
-//! # EMWA: compute exponential moving averages without introducing drift
-//! EMWA provides an abstraction to compute [exponential moving
+//! # EWMA: compute exponential moving averages without introducing drift
+//! EWMA provides an abstraction to compute [exponential moving
 //! averages](https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average) over evenly
 //! and non-evenly spaced timeseries.
 //!
 //! ```
-//! use emwa_rs::{EMWA, Smoothing};
+//! use ewma::{EWMA, Smoothing};
 //!
 //! let datapoints: Vec<f64> = vec![10.3, 11.9, -1.33, 2.0];
 //!
 //! // Apply an exponential moving average with alpha=0.5
 //! // on a stream of evenly spaced values:
-//! let mut risk = EMWA::new(0.6f64, Smoothing::Static);
+//! let mut risk = EWMA::new(0.6f64, Smoothing::Static);
 //! for datapoint in datapoints.iter() {
 //!     risk.add(datapoint)
 //! }
@@ -21,7 +21,7 @@
 
 // #![warn(missing_docs)]
 
-/// Errors that are specific to computing EMWAs
+/// Errors that are specific to computing EWMAs
 #[derive(Debug)]
 pub enum Error {
     /// Applying a static operator to a dynamic strategy (and vice-versa).
@@ -32,7 +32,7 @@ pub enum Error {
 
 /// An abstraction representing an exponential moving average with a smoothing strategy.
 ///
-/// # What is an EMWA?
+/// # What is an EWMA?
 ///
 /// An exponential moving average is used to summarize the average value of a time series over an
 /// observation period, with a bias towards recent or older values depending on the choice of
@@ -68,10 +68,10 @@ pub enum Error {
 ///
 /// # Can I use a custom smoothing strategy.
 /// Soon, inch'allah.
-pub struct EMWA {
+pub struct EWMA {
     /// smoothing factor (aka. alpha)
     alpha: f64,
-    /// current value of the EMWA
+    /// current value of the EWMA
     value: f64,
     /// number of observations seen
     datapoints: u32,
@@ -89,9 +89,9 @@ pub enum Smoothing {
     Dynamic,
 }
 
-impl EMWA {
+impl EWMA {
     pub fn new(alpha: f64, strategy: Smoothing) -> Self {
-        EMWA {
+        EWMA {
             alpha,
             value: 0f64,
             datapoints: 0,
@@ -100,7 +100,7 @@ impl EMWA {
         }
     }
 
-    /// Adds a datapoint to an EMWA with a `Smoothing::Static` strategy (evenly spaced
+    /// Adds a datapoint to an EWMA with a `Smoothing::Static` strategy (evenly spaced
     /// observations)
     pub fn add(&mut self, data: f64) -> Result<f64, Error> {
         if let Smoothing::Dynamic = self.strategy {
@@ -128,7 +128,7 @@ impl EMWA {
         }
     }
 
-    /// Adds a datapoint to an EMWA with a `Smoothing::Dynamic` strategy (unevenly spaced ts)
+    /// Adds a datapoint to an EWMA with a `Smoothing::Dynamic` strategy (unevenly spaced ts)
     pub fn add_with_time(&mut self, data: f64, time: f64) -> Result<f64, Error> {
         if let Smoothing::Static = self.strategy {
             return Err(Error::AlgoMismatch);
@@ -156,7 +156,7 @@ impl EMWA {
 
 #[cfg(test)]
 mod tests {
-    use crate::EMWA;
+    use crate::EWMA;
 
     #[test]
     fn it_works() {
@@ -166,9 +166,9 @@ mod tests {
 
     #[test]
     /// When the smoothing factor is constant and equal to 1
-    /// The rolling EMWA is always equal to the latest observed value.
+    /// The rolling EWMA is always equal to the latest observed value.
     fn smoothing_factor_one() {
-        let mut rolling = EMWA::new(1f64, crate::Smoothing::Static);
+        let mut rolling = EWMA::new(1f64, crate::Smoothing::Static);
         for i in 1..100 {
             rolling.add(i as f64).unwrap();
         }
@@ -177,6 +177,6 @@ mod tests {
 
     #[test]
     fn smoothing_factor_zero() {
-        let mut rolling = EMWA::new(0f64, crate::Smoothing::Static);
+        let mut rolling = EWMA::new(0f64, crate::Smoothing::Static);
     }
 }
